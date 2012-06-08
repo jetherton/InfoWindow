@@ -10,10 +10,16 @@ class InfoWindow {
 	}
 
 	public function add(){
-		if( Router::$controller == "main" || /*adminmap plugin support*/ Router::$controller == "bigmap") 
+		if( Router::$controller == "main" || /*adminmap plugin support*/ Router::$controller == "bigmap" || Router::$controller == "printmap" 
+				|| Router::$controller == "iframemap") 
 		{
 		    plugin::add_stylesheet("InfoWindow/views/css/infowindow");
-		    Event::add("ushahidi_action.main_footer",array($this,"register_script"));
+		    Event::add("ushahidi_action.header_scripts",array($this,"register_script"));
+		}
+		if( Router::$controller == "adminmap")
+		{
+			plugin::add_stylesheet("InfoWindow/views/css/infowindow");
+			Event::add("ushahidi_action.admin_header_top_left",array($this,"register_script"));
 		}
 		if(/*mapembed plugin support*/ Router::$controller == "mapembed"){
 		 	/*Incase we are using the map embed plugin*/
@@ -24,6 +30,7 @@ class InfoWindow {
 	}
 	
 	public function register_script(){
+		
 		plugin::add_javascript("InfoWindow/media/js/jquery.pagination");
 		echo plugin::render("javascript");
 		echo "<script src=\"".url::base()."infowindow\"></script>";
