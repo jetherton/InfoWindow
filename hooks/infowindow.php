@@ -11,7 +11,7 @@ class InfoWindow {
 
 	public function add(){
 		if( Router::$controller == "main" || /*adminmap plugin support*/ Router::$controller == "bigmap" || Router::$controller == "printmap" 
-				|| Router::$controller == "iframemap") 
+				|| Router::$controller == "iframemap" ||Router::$controller == "testmap" ) 
 		{
 		    plugin::add_stylesheet("InfoWindow/views/css/infowindow");
 		    Event::add("ushahidi_action.header_scripts",array($this,"register_script"));

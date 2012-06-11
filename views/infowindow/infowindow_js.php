@@ -528,11 +528,6 @@ function get_content(feature){
 }
 
 
- /* Event handler for map zoomed */  
-function closePopup(event){
-	map.removePopup(popup); //Remove popup (FramedCloud);
-}
-
 function onFeatureSelect(event){
 	
 	 selectedFeature = event.feature;
@@ -566,6 +561,7 @@ function onFeatureSelect(event){
 			{
                 content = "Content contained Javascript! Escaped content below.<br />" + content.replace(/</g, "&lt;");
             }
+            var selectedFeature = event.feature;
             
             popup = new OpenLayers.Popup.FramedCloud(
             	/*Id*/"iw-bubble", 
@@ -574,15 +570,38 @@ function onFeatureSelect(event){
 				/*contentHtml*/content,
 				/*anchor*/null, 
 				/*closeBox*/true, 
-				/*closeBoxCallback*/onPopupClose
+				/*closeBoxCallback*//*function(evt){map.removePopup(selectedFeature.popup);}*/
+				function(evt){ map.removePopup(selectedFeature.popup);
+				            selectedFeature.popup.destroy();
+				            selectedFeature.popup = null;
+				            
+				            
+							for(i in map.featureUnSelectionEventRegistrants)
+							{
+								var func = map.featureUnSelectionEventRegistrants[i];
+								func(selectedFeature);
+							}}
 				);
            	
            	event.feature.popup = popup;
            
             map.addPopup(popup);
             
+            var thisPopup = popup;
+            
             /* Close popup when we zoom the map, it causes problemos */          	
-           	map.events.register("zoomend",null,closePopup);
+           	map.events.register("zoomend",null,
+           	function(evt){ map.removePopup(selectedFeature.popup);
+				            selectedFeature.popup.destroy();
+				            selectedFeature.popup = null;
+				            
+				            
+							for(i in map.featureUnSelectionEventRegistrants)
+							{
+								var func = map.featureUnSelectionEventRegistrants[i];
+								func(selectedFeature);
+							}}           	
+           	);
            	
            	
        		if(paginate)
@@ -596,6 +615,14 @@ function onFeatureSelect(event){
        	    
        	    popup.updateSize();
        	    popup.updatePosition();
+       	    
+       	    //let other JS items know that there was a feature select
+			
+			for(i in map.featureSelectionEventRegistrants)
+			{
+				var func = map.featureSelectionEventRegistrants[i];
+				func(selectedFeature);
+			}
 }
 
 
